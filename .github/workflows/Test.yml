@@ -39,6 +39,9 @@ jobs:
       with:
         backend: ${{ matrix.backend }}
 
+    - name: Get 'master' vendor scripts
+      run: git clone https://github.com/umarcor/ghdl
+
     - run: ./verification/${{ matrix.project }}/run.sh
 
 
@@ -82,6 +85,9 @@ jobs:
       uses: ghdl/setup-ghdl-ci@master
       with:
         backend: ${{ matrix.sys.pkg }}
+
+    - name: Get 'master' vendor scripts
+      run: git clone https://github.com/umarcor/ghdl
 
     - name: '${{ matrix.sys.icon }} Compile ${{ matrix.project }}'
       if: matrix.shell == 'msys2'
