@@ -114,7 +114,8 @@ jobs:
     - name: '🐍 Install dependencies'
       run: |
         pip3 install pytest pytest-reporter pytest-reporter-html1 pytest-xdist
-        pip3 install git+https://github.com/ghdl/ghdl.git@$(ghdl version hash)
+        # pip3 install git+https://github.com/ghdl/ghdl.git@$(ghdl version hash)
+        pip3 install -U git+https://github.com/Paebbels/ghdl.git@paebbels/dom
 
     - name: '📦 Clone repositories to be analysed'
       run: |
