@@ -128,7 +128,7 @@ jobs:
         do git clone https://github.com/"$prj"; done
 
     - name: '🚧 Run pytest'
-      run: pytest -n $(nproc) --template=html1/index.html --report=report.html DOMTest.py
+      run: pytest -n $(nproc) --template=DOMReportTemplate/index.html --report=report.html DOMTest.py
 
     - name: '📤 Upload artifact: report.html'
       if: github.event_name != 'pull_request'
