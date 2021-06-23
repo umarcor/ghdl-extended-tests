@@ -1,144 +1,288 @@
-{% extends "html1/base.html" %}
-{% block content %}
-<section id="summary">
-  <div class="container">
-    <h1>Summary</h1>
-    {% block summary %}
-    <div class="metadata">
-      <table>
-        {% block session_metadata %}
-        <tr>
-          <th>Started</th>
-          <td>{{ started|strftime(time_format) }}</td>
-        </tr>
-        <tr>
-          <th>Ended</th>
-          <td>
-            {% if ended %}
-              {{ ended|strftime(time_format) }}
-            {% else %}
-              <i>In progress...</i>
-            {% endif %}
-          </td>
-        </tr>
-        {% if ended %}
-          <tr>
-            <th>Duration</th>
-            {% set duration = ended - started %}
-            <td>{{ duration|timedelta }}</td>
-          </tr>
-        {% endif %}
-        <tr>
-          <th>Total run time</th>
-          <td>{{ tests|map(attribute='phases')|map('sum', 'report.duration')|sum|timedelta }}</td>
-        </tr>
-        {% if config._metadata %}
-          {% for key, value in config._metadata.items() %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% block head %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="pytest-reporter-html1 {{ __version__ }}">
+  <title>{{ title|default('Test Report') }}</title>
+  {% filter css %}
+    {% filter css_minify %}
+      {% block style %}
+      {% include "html1/normalize.css" %}
+      {% include "html1/style.css" %}
+      {% endblock %}
+    {% endfilter %}
+  {% endfilter %}
+  <script>
+    {% block script %}
+    {% endblock %}
+  </script>
+  {% endblock %}
+</head>
+<body>
+  <header>
+    {% block header %}
+    <div class="container">
+      <span class="report-title">{{ title|default('Test Report') }}</span>
+    </div>
+    {% endblock %}
+  </header>
+  <main>
+    {% block content %}
+    <section id="summary">
+      <div class="container">
+        <h1>Summary</h1>
+        {% block summary %}
+        <div class="metadata">
+          <table>
+            {% block session_metadata %}
             <tr>
-              <th>{{ key }}</th>
+              <th>Started</th>
+              <td>{{ started|strftime(time_format) }}</td>
+            </tr>
+            <tr>
+              <th>Ended</th>
               <td>
-                {% if value is mapping %}
-                  {% for key, value in value.items() %}
-                    {{ key }}: {{ value }}<br>
-                  {% endfor %}
+                {% if ended %}
+                  {{ ended|strftime(time_format) }}
                 {% else %}
-                  {{ value|urlize }}
+                  <i>In progress...</i>
                 {% endif %}
               </td>
             </tr>
-            {% endfor %}
-        {% endif %}
-        {% endblock %}
-      </table>
-    </div>
-    <div class="graph">
-      {% set tests_by_category = tests|groupby('status.category') %}
-      {% set nodes_run = tests|map(attribute='item.nodeid')|list %}
-      {% set nof_nodes_not_run = session.items|rejectattr('nodeid', 'in', nodes_run)|list|count %}
-      <svg width="200" height="200" viewBox="0 0 42 42">
-        {% set ns = namespace(sum=0.0) %}
-        {% set total = tests|count %}
-        {% set r = 16 %}
-        {% set spacing = 0.4 %}
-        {% set C = 2 * 3.141592653589793 * r %}
-        {% for category, sub_tests in tests_by_category %}
-          {% set count = sub_tests|count %}
-          {% set L = count / (total + nof_nodes_not_run) * C %}
-          {% set color = colors[category] %}
-          <circle
-            class="donut-segment {{ category }}"
-            stroke-dasharray="{{ [L - spacing, 0]|max }} {{ C - (L - spacing) }}"
-            stroke-dashoffset="{{ C - ns.sum + C / 4 - spacing / 2 }}"
-            cx="21"
-            cy="21"
-            r="{{ r }}"
-            fill="transparent"
-            {% if color %}
-            stroke="{{ color[0] }}"
+            {% if ended %}
+              <tr>
+                <th>Duration</th>
+                {% set duration = ended - started %}
+                <td>{{ duration|timedelta }}</td>
+              </tr>
             {% endif %}
-            stroke-width="4">
-          </circle>
-          {% set ns.sum = ns.sum + L %}
-        {% endfor %}
-        <text x="21" y="24" text-anchor="middle">{{ total }}</text>
-      </svg>      
-      <div class="legend">
-        {% for category, tests in tests_by_category %}
-          <span class="status badge {{ category }} {{ tests|map(attribute='status.style')|first|join(' ') }}">
-            {{ tests|count }}
-          </span>
-          <span>{{ category }}</span>
-        {% endfor %}
-        {% if nof_nodes_not_run %}
-          <span class="status badge notrun">{{ nof_nodes_not_run }}</span>
-          <span>not run</span>
-        {% endif %}
+            <tr>
+              <th>Total run time</th>
+              <td>{{ tests|map(attribute='phases')|map('sum', 'report.duration')|sum|timedelta }}</td>
+            </tr>
+            {% if config._metadata %}
+              {% for key, value in config._metadata.items() %}
+                <tr>
+                  <th>{{ key }}</th>
+                  <td>
+                    {% if value is mapping %}
+                      {% for key, value in value.items() %}
+                        {{ key }}: {{ value }}<br>
+                      {% endfor %}
+                    {% else %}
+                      {{ value|urlize }}
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+            {% endblock %}
+          </table>
+        </div>
+        <div class="graph">
+          {% set tests_by_category = tests|groupby('status.category') %}
+          {% set nodes_run = tests|map(attribute='item.nodeid')|list %}
+          {% set nof_nodes_not_run = session.items|rejectattr('nodeid', 'in', nodes_run)|list|count %}
+          <svg width="200" height="200" viewBox="0 0 42 42">
+            {% set ns = namespace(sum=0.0) %}
+            {% set total = tests|count %}
+            {% set r = 16 %}
+            {% set spacing = 0.4 %}
+            {% set C = 2 * 3.141592653589793 * r %}
+            {% for category, sub_tests in tests_by_category %}
+              {% set count = sub_tests|count %}
+              {% set L = count / (total + nof_nodes_not_run) * C %}
+              {% set color = colors[category] %}
+              <circle
+                class="donut-segment {{ category }}"
+                stroke-dasharray="{{ [L - spacing, 0]|max }} {{ C - (L - spacing) }}"
+                stroke-dashoffset="{{ C - ns.sum + C / 4 - spacing / 2 }}"
+                cx="21"
+                cy="21"
+                r="{{ r }}"
+                fill="transparent"
+                {% if color %}
+                stroke="{{ color[0] }}"
+                {% endif %}
+                stroke-width="4">
+              </circle>
+              {% set ns.sum = ns.sum + L %}
+            {% endfor %}
+            <text x="21" y="24" text-anchor="middle">{{ total }}</text>
+          </svg>
+          <div class="legend">
+            {% for category, tests in tests_by_category %}
+              <span class="status badge {{ category }} {{ tests|map(attribute='status.style')|first|join(' ') }}">
+                {{ tests|count }}
+              </span>
+              <span>{{ category }}</span>
+            {% endfor %}
+            {% if nof_nodes_not_run %}
+              <span class="status badge notrun">{{ nof_nodes_not_run }}</span>
+              <span>not run</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endblock %}
       </div>
+    </section>
+    {% if warnings %}
+      <section id="warnings">
+        <div class="container">
+          <h1>Warnings</h1>
+          {% for warning in warnings %}
+            <div class="status badge warning">WARNING</div>
+            <div>{{ warning.filename }}:{{ warning.lineno }}<br>{{ warning.message }}</div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+    <section id="test-files">
+      <div class="container">
+        <h1>Tests</h1>
+        {% for fspath, tests in tests|groupby('item.fspath') %}
+          {% set first_item = tests|map(attribute='item')|first %}
+          <details class="file" open="">
+            <summary>
+              <h2 class="title file-title">
+                {% block module_title scoped %}
+                <span class="fspath">
+                  {% block module_name scoped %}
+                  {{ first_item.nodeid.split('::')|first }}
+                  {% endblock %}
+                </span>
+                <span class="counts">
+                {% for category, tests in tests|groupby('status.category') -%}
+                  <span title="{{ tests|count }} {{ category }}" class="count status badge {{ category }} {{ tests|map(attribute='status.style')|first|join(' ') }}">{{ tests|count }}</span>
+                {%- endfor %}
+                </span>
+                <span class="duration">
+                  {{ tests|map(attribute='phases')|map('sum', 'report.duration')|sum|timedelta }}
+                </span>
+                {% endblock %}
+              </h2>
+            </summary>
+            <div class="content box">
+              {% block module_content scoped %}
+              {% for test in tests %}
+                <details class="test {{ test.status.category }}">
+                  <summary>
+                    <h3 class="title test-title">
+                      {% block test_title scoped %}
+                      <span class="status badge {{ test.status.category }} {{ test.status.style|join(' ') }}">{{ test.status.word }}</span>
+                      <span class="test-name">
+                        {% block test_name scoped %}
+                        {% set name = test.item.nodeid.split('::')[1:]|join('::') %}
+                        {% set funcname, _, params = name.partition('[') %}
+                        <span class="funcname">{{ funcname }}</span>
+                        {%- if params -%}
+                          <span class="params">[{{ params }}</span>
+                        {% endif %}
+                        {% endblock %}
+                      </span>
+                      <span class="duration">{{ test.phases|sum('report.duration')|timedelta }}</span>
+                      {% endblock %}
+                    </h3>
+                  </summary>
+                  <div class="content">
+                    <!-- TEST -->
+                    {% block test_content scoped %}
+                    {% if test.item.function.__doc__ %}
+                    <div class="documentation">
+                      {{ test.item.function.__doc__|cleandoc|rst|safe }}
+                    </div>
+                    {% endif %}
+                    <table class="metadata">
+                    {% block test_metadata scoped %}
+                    {% for name, value in test.phases|map(attribute='report.user_properties')|chain|unique %}
+                      <tr>
+                        <th>{{ name }}</th>
+                        <td>{{ value|escape|urlize }}</td>
+                      </tr>
+                    {% endfor %}
+                    {# TODO: Use keywords from TestReport to support dynamically added markers with xdist #}
+                    {% set markers = test.item.iter_markers()|rejectattr('name', '==', 'parametrize')|list|unique(attribute='name') %}
+                    {% for phase in test.phases %}
+                      {% for extra in phase.report.extra|default([]) %}
+                        <tr class="extra extra-{{ extra.format }}">
+                          <th>{{ extra.name }}</th>
+                          <td>
+                            {% if extra.format == 'image' %}
+                              <img src="{{ extra.content|asset(extra.extension) }}" alt="{{ extra.name }}">
+                            {% elif extra.format == 'video' %}
+                              <video controls>
+                                <source src="{{ extra.content|asset(extra.extension) }}" type="{{ extra.mime_type }}">
+                              </video>
+                            {% elif extra.format == 'html' %}
+                              {{ extra.content|safe }}
+                            {% elif extra.format == 'text' %}
+                              <pre>{{ extra.content|escape }}</pre>
+                            {% elif extra.format == 'json' %}
+                              <pre>{{ extra.content|tojson(indent=2) }}</pre>
+                            {% elif extra.format == 'url' %}
+                              {{ extra.content|urlize }}
+                            {% else %}
+                              ?
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    {% endfor %}
+                    {% endblock %}
+                    </table>
+                    {% for phase in test.phases if phase.call and phase.call.excinfo %}
+                      <div class="repr">
+                        <pre>{{ phase.call.excinfo.exconly(tryshort=True) }}</pre>
+                      </div>
+                    {% endfor %}
+                    <!--<div class="test-phases">-->
+                    {% for phase in test.phases if phase.report.when == 'call' %}
+                      <!--<details class="phase {{ phase.report.when }} {{ phase.status.category }}" {{ 'open' if phase.status.category }}>
+                        <summary>
+                          <h4 class="title">
+                            {% if phase.status.category %}
+                              <span class="status {{ phase.status.style|join(' ') }} {{ phase.status.category }}"></span>
+                            {% endif %}
+                            <span class="phase-name">{{ phase.report.when|title }}</span>
+                          </h4>
+                        </summary>
+                        <div class="content">
+                          {% if phase.report.longrepr %}
+                            <div class="repr">
+                              <pre>{{ phase.report.longreprtext }}</pre>
+                            </div>
+                          {% endif %}
+                          -->
+                          {% for section, content in phase.sections %}
+                            <!--<div class="section">
+                              <h5 class="section-title">{{ section }}</h5>-->
+                              <pre><samp>{{ content|escape|replace('\r\n', '\n')|ansi|safe }}</samp></pre>
+                            <!--</div>-->
+                          {% endfor %}
+                        <!--</div>
+                      </details>-->
+                    {% endfor %}
+                    <!--</div>-->
+                    {% endblock %}
+                  </div>
+                </details>
+              {% endfor %}
+              {% endblock %}
+            </div>
+          </details>
+        {% endfor %}
+      </div>
+    </section>
+    {% endblock %}
+  </main>
+  <footer>
+    {% block footer %}
+    <div class="container">
+      Generated by <a href="https://pypi.org/project/pytest-reporter-html1/">pytest-reporter-html1</a>
     </div>
     {% endblock %}
-  </div>
-</section>
-{% if warnings %}
-  <section id="warnings">
-    <div class="container">
-      <h1>Warnings</h1>
-      {% for warning in warnings %}
-        <div class="status badge warning">WARNING</div>
-        <div>{{ warning.filename }}:{{ warning.lineno }}<br>{{ warning.message }}</div>
-      {% endfor %}
-    </div>
-  </section>
-{% endif %}
-<section id="test-files">
-  <div class="container">
-    <h1>Tests</h1>
-    {% for fspath, tests in tests|groupby('item.fspath') %}
-      {% set first_item = tests|map(attribute='item')|first %}
-      <details class="file">
-        <summary>
-          <h2 class="title file-title">
-            {% block module_title scoped %}
-            <span class="fspath">
-              {% block module_name scoped %}
-              {{ first_item.nodeid.split('::')|first }}
-              {% endblock %}
-            </span>
-            <span class="counts">
-            {% for category, tests in tests|groupby('status.category') -%}
-              <span title="{{ tests|count }} {{ category }}" class="count status badge {{ category }} {{ tests|map(attribute='status.style')|first|join(' ') }}">{{ tests|count }}</span>
-            {%- endfor %}
-            </span>
-            <span class="duration">
-              {{ tests|map(attribute='phases')|map('sum', 'report.duration')|sum|timedelta }}
-            </span>
-            {% endblock %}
-          </h2>
-        </summary>
-        <div class="content box">
-          {% include "html1/module.html" %}
-        </div>
-      </details>
-    {% endfor %}
-  </div>
-</section>
-{% endblock %}
+  </footer>
+</body>
+</html>
