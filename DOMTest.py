@@ -7,14 +7,34 @@ if __name__ == "__main__":
 	print("Use: 'python -m unitest <testcase module>'")
 	exit(1)
 
-def getVHDLSources():
+
+def pytest_generate_tests(context):
+	testParameters = context.cls.parameters[context.function.__name__]
+
 	thisFile = Path(__file__)
-	group = thisFile.parent.name
-	basePath = thisFile.parent.parent.parent.resolve() / group / thisFile.stem
-	return [str(path) for path in basePath.glob("**/*.vhd*")]
+	basePath = thisFile.parent.resolve() / testParameters["directory"]
+
+	context.parametrize(["file"], [str(path) for path in basePath.glob("**/*.vhd*")])
 
 
-@mark.xfail
-@mark.parametrize("file", getVHDLSources())
-def test_AllVHDLSources(file: str):
-	check_call(['ghdl-dom', file], stderr=STDOUT)
+class AllVHDLFiles:
+	parameters = {
+		"test_OSVVM": {"directory": "verification/OSVVM"},
+		"test_UVVM": {"directory": "verification/UVVM"},
+		"test_VUnit": {"directory": "verification/VUnit"},
+	}
+
+	def _runDOM(self, file: str):
+		check_call(['ghdl-dom', file], stderr=STDOUT)
+
+	@mark.xfail
+	def test_OSVVM(self, file: str):
+		self._runDOM(file)
+
+	@mark.xfail
+	def test_UVVM(self, file: str):
+		self._runDOM(file)
+
+	@mark.xfail
+	def test_VUnit(self, file: str):
+		self._runDOM(file)
