@@ -119,6 +119,8 @@ jobs:
 
     - name: '📦 Clone repositories to be analysed'
       run: |
+        mkdir ghdl
+        cd ghdl
         for prj in \
           ghdl/ghdl \
           ghdl/ghdl-cosim \
@@ -129,7 +131,8 @@ jobs:
       run: |
         for group in \
           synthesis \
-          verification;
+          verification \
+          ghdl;
         do
           mkdir -p dom/$group
           for framework in $(ls $group); do
@@ -138,7 +141,7 @@ jobs:
         done
 
     - name: '🚧 Run pytest'
-      run: pytest --template=html1/index.html --report=report.html dom
+      run: pytest -n $(nproc) --template=html1/index.html --report=report.html dom
 
     - name: '📤 Upload artifact: report.html'
       if: github.event_name != 'pull_request'
