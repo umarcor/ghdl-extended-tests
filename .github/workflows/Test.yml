@@ -127,19 +127,6 @@ jobs:
           ghdl/ghdl-yosys-plugin;
         do git clone https://github.com/"$prj"; done
 
-#    - name: 'Create one pytest test per framework'
-#      run: |
-#        for group in \
-#          synthesis \
-#          verification \
-#          ghdl;
-#        do
-#          mkdir -p dom/$group
-#          for framework in $(ls $group); do
-#            cp DOMTest.py dom/$group/$framework.py
-#          done
-#        done
-
     - name: '🚧 Run pytest'
       run: pytest -n $(nproc) --template=html1/index.html --report=report.html DOMTest.py
 
