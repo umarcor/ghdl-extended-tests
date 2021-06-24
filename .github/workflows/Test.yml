@@ -125,8 +125,20 @@ jobs:
           ghdl/ghdl-yosys-plugin;
         do git clone https://github.com/"$prj"; done
 
+    - name: 'Create one pytest test per framework'
+      run: |
+        for group in \
+          synthesis \
+          verification;
+        do
+          mkdir -p dom/$group
+          for framework in $(ls $group); do
+            cp DOMTest.py dom/$group/$framework.py
+          done
+        done
+
     - name: '🚧 Run pytest'
-      run: pytest -n $(nproc) --template=html1/index.html --report=report.html dom
+      run: pytest --template=html1/index.html --report=report.html dom
 
     - name: '📤 Upload artifact: report.html'
       if: github.event_name != 'pull_request'

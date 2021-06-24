@@ -1,6 +1,6 @@
-from subprocess import check_call, STDOUT
 from pathlib import Path
 from pytest import mark
+from subprocess import check_call, STDOUT
 
 if __name__ == "__main__":
 	print("ERROR: you called a testcase declaration file as an executable module.")
@@ -9,11 +9,12 @@ if __name__ == "__main__":
 
 def getVHDLSources():
 	thisFile = Path(__file__)
-	basePath = thisFile.parent.parent.resolve()
-	return [path for path in basePath.rglob("verification/" + thisFile.stem + "/**/*.vhd*")]
+	group = thisFile.parent.name
+	basePath = thisFile.parent.parent.parent.resolve() / group / thisFile.stem
+	return [str(path) for path in basePath.glob("**/*.vhd*")]
 
 
 @mark.xfail
 @mark.parametrize("file", getVHDLSources())
-def test_AllVHDLSources(file: Path):
-	check_call(['ghdl-dom', str(file)], stderr=STDOUT)
+def test_AllVHDLSources(file: str):
+	check_call(['ghdl-dom', file], stderr=STDOUT)
