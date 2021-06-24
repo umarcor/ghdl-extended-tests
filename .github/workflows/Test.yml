@@ -13,84 +13,84 @@ env:
 jobs:
 
 
-  lin-setup-verification:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      max-parallel: 8
-      matrix:
-        backend: [
-          mcode,
-          llvm,
-          gcc
-        ]
-        project: [
-          OSVVM,
-          UVVM
-        ]
-    name: '🐧 ${{ matrix.project }} · bash · ${{ matrix.backend }}'
-    steps:
+#  lin-setup-verification:
+#    runs-on: ubuntu-latest
+#    strategy:
+#      fail-fast: false
+#      max-parallel: 8
+#      matrix:
+#        backend: [
+#          mcode,
+#          llvm,
+#          gcc
+#        ]
+#        project: [
+#          OSVVM,
+#          UVVM
+#        ]
+#    name: '🐧 ${{ matrix.project }} · bash · ${{ matrix.backend }}'
+#    steps:
+#
+#    - name: '🧰 Checkout'
+#      uses: actions/checkout@v2
+#
+#    - name: '⚙️ Setup GHDL'
+#      uses: ghdl/setup-ghdl-ci@master
+#      with:
+#        backend: ${{ matrix.backend }}
+#
+#    - run: ./verification/${{ matrix.project }}/run.sh
 
-    - name: '🧰 Checkout'
-      uses: actions/checkout@v2
 
-    - name: '⚙️ Setup GHDL'
-      uses: ghdl/setup-ghdl-ci@master
-      with:
-        backend: ${{ matrix.backend }}
-
-    - run: ./verification/${{ matrix.project }}/run.sh
-
-
-  win-verification:
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      max-parallel: 8
-      matrix:
-        sys: [
-          {icon: '🟦', installs: 'MINGW32', arch: i686,   pkg: 'mcode' },
-          #{icon: '🟦', installs: "MINGW32", arch: i686,   pkg: "llvm"  }, ! Not yet functional
-          #{icon: '🟪', installs: "MINGW64", arch: x86_64, pkg: "mcode" }, ! mcode is not yet supported on win64
-          {icon: '🟪', installs: 'MINGW64', arch: x86_64, pkg: 'llvm'  },
-        ]
-        project: [
-          OSVVM,
-          UVVM
-        ]
-        shell: [
-          msys2,
-          psh
-        ]
-    name: '${{ matrix.sys.icon }} ${{ matrix.project }} · ${{ matrix.shell }} · ${{ matrix.sys.installs }} ${{ matrix.sys.pkg }}'
-    defaults:
-      run:
-        shell: msys2 {0}
-    steps:
-
-    - name: '${{ matrix.sys.icon }} Setup MSYS2'
-      uses: msys2/setup-msys2@v2
-      with:
-        msystem: ${{ matrix.sys.installs }}
-        update: true
-        install: git
-
-    - name: '🧰 Checkout'
-      uses: actions/checkout@v2
-
-    - name: '⚙️ Setup GHDL'
-      uses: ghdl/setup-ghdl-ci@master
-      with:
-        backend: ${{ matrix.sys.pkg }}
-
-    - name: '${{ matrix.sys.icon }} Compile ${{ matrix.project }}'
-      if: matrix.shell == 'msys2'
-      run: ./verification/${{ matrix.project }}/run.sh
-
-    - name: Compile ${{ matrix.project }}
-      if: matrix.shell == 'psh'
-      shell: pwsh
-      run: verification\${{ matrix.project }}\run.ps1
+#  win-verification:
+#    runs-on: windows-latest
+#    strategy:
+#      fail-fast: false
+#      max-parallel: 8
+#      matrix:
+#        sys: [
+#          {icon: '🟦', installs: 'MINGW32', arch: i686,   pkg: 'mcode' },
+#          #{icon: '🟦', installs: "MINGW32", arch: i686,   pkg: "llvm"  }, ! Not yet functional
+#          #{icon: '🟪', installs: "MINGW64", arch: x86_64, pkg: "mcode" }, ! mcode is not yet supported on win64
+#          {icon: '🟪', installs: 'MINGW64', arch: x86_64, pkg: 'llvm'  },
+#        ]
+#        project: [
+#          OSVVM,
+#          UVVM
+#        ]
+#        shell: [
+#          msys2,
+#          psh
+#        ]
+#    name: '${{ matrix.sys.icon }} ${{ matrix.project }} · ${{ matrix.shell }} · ${{ matrix.sys.installs }} ${{ matrix.sys.pkg }}'
+#    defaults:
+#      run:
+#        shell: msys2 {0}
+#    steps:
+#
+#    - name: '${{ matrix.sys.icon }} Setup MSYS2'
+#      uses: msys2/setup-msys2@v2
+#      with:
+#        msystem: ${{ matrix.sys.installs }}
+#        update: true
+#        install: git
+#
+#    - name: '🧰 Checkout'
+#      uses: actions/checkout@v2
+#
+#    - name: '⚙️ Setup GHDL'
+#      uses: ghdl/setup-ghdl-ci@master
+#      with:
+#        backend: ${{ matrix.sys.pkg }}
+#
+#    - name: '${{ matrix.sys.icon }} Compile ${{ matrix.project }}'
+#      if: matrix.shell == 'msys2'
+#      run: ./verification/${{ matrix.project }}/run.sh
+#
+#    - name: Compile ${{ matrix.project }}
+#      if: matrix.shell == 'psh'
+#      shell: pwsh
+#      run: verification\${{ matrix.project }}\run.ps1
 
 
   DOM:
