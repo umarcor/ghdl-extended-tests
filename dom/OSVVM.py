@@ -8,11 +8,12 @@ if __name__ == "__main__":
 	exit(1)
 
 def getVHDLSources():
-	basePath = Path(__file__).resolve().parent
-	return [str(path) for path in basePath.glob("**/*.vhd*")]
+	thisFile = Path(__file__)
+	basePath = thisFile.parent.parent.resolve()
+	return [path for path in basePath.rglob("verification/" + thisFile.stem + "/**/*.vhd*")]
 
 
 @mark.xfail
 @mark.parametrize("file", getVHDLSources())
-def test_AllVHDLSources(file):
+def test_AllVHDLSources(file: Path):
 	check_call(['ghdl-dom', str(file)], stderr=STDOUT)

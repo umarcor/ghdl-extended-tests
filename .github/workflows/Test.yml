@@ -122,14 +122,11 @@ jobs:
         for prj in \
           ghdl/ghdl \
           ghdl/ghdl-cosim \
-          ghdl/ghdl-yosys-plugin \
-          VUnit/vunit VLSI-EDA/PoC \
-          antonblanchard/microwatt \
-          stnolting/NEORV32;
+          ghdl/ghdl-yosys-plugin;
         do git clone https://github.com/"$prj"; done
 
     - name: '🚧 Run pytest'
-      run: pytest -n $(nproc) --template=html1/index.html --report=report.html TestDOM.py
+      run: pytest -n $(nproc) --template=html1/index.html --report=report.html dom
 
     - name: '📤 Upload artifact: report.html'
       if: github.event_name != 'pull_request'

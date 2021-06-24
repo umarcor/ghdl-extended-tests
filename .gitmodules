@@ -4,3 +4,15 @@
 [submodule "verification/UVVM/uvvm"]
 	path = verification/UVVM/uvvm
 	url = https://github.com/uvvm/uvvm
+[submodule "verification/VUnit"]
+	path = verification/VUnit
+	url = https://github.com/VUnit/vunit.git
+[submodule "synthesis/PoC"]
+	path = synthesis/PoC
+	url = https://github.com/VLSI-EDA/PoC.git
+[submodule "synthesis/neorv32"]
+	path = synthesis/neorv32
+	url = https://github.com/stnolting/neorv32.git
+[submodule "synthesis/microwatt"]
+	path = synthesis/microwatt
+	url = https://github.com/antonblanchard/microwatt.git
