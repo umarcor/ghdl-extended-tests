@@ -7,5 +7,4 @@ line-length = 120
 # Don't set 'python_classes = *' otherwise, pytest doesn't search for classes
 # derived from unittest.Testcase
 python_files = "*"
-python_classes = "*"
 python_functions = "test_*"

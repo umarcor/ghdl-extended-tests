@@ -12,12 +12,13 @@ def pytest_generate_tests(metafunc):
     testParameters = metafunc.cls.parameters[metafunc.function.__name__]
 
     thisFile = Path(__file__)
-    basePath = thisFile.parent.resolve() / testParameters["directory"]
+    basePath = thisFile.parent.resolve()
+    frameworkPath = basePath / testParameters["directory"]
 
-    metafunc.parametrize(["file"], [[str(path)] for path in basePath.glob("**/*.vhd*")])
+    metafunc.parametrize(["file"], [[str(path.relative_to(basePath))] for path in frameworkPath.glob("**/*.vhd*")])
 
 
-class AllVHDLFiles:
+class Test:
     parameters = {
         "test_OSVVM": {"directory": "verification/OSVVM"},
         "test_UVVM": {"directory": "verification/UVVM"},
