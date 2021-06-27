@@ -216,4 +216,4 @@ jobs:
         "> libwinpthread-1.dll"
         ldd ((& msys2 -c 'cygpath -w /') + "${{ matrix.sys.installs }}\bin\libwinpthread-1.dll")
 
-        python3 -m pytest -vsrA testsuite/pyunit
+        ghdl-dom testuite/pyunit/Current.vhdl
