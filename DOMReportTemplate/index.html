@@ -143,6 +143,49 @@
       <div class="container">
         <h1>Tests</h1>
         {% for fspath, tests in tests|groupby('item.fspath') %}
+
+
+
+        {% set categories = {} %}
+        {% for test in tests %}
+
+{{ test }}
+
+<br>
+<br>
+
+          {% set elements = test.item.nodeid.split('::')[1:] %}
+          {% if elements[0] not in categories %}
+            {% set cat={} %}
+          {% else %}
+            {% set cat=categories[elements[0]] %}
+          {% endif %}
+          {% set funcname, _, params = elements[1].partition('[') %}
+          {% if funcname not in cat %}
+            {% set x=cat.__setitem__(funcname, []) %}
+          {% endif %}
+          {% set x=cat[funcname].append(params[0:-1]) %}
+          {% set x=categories.__setitem__(elements[0], cat) %}
+        {% endfor %}
+
+<ul>
+        {% for cat in categories %}
+<li>                C: {{ cat }}
+<ul>
+          {% for item, val in categories[cat].items() %}
+<li>{{ item }}</li>
+<ul>
+{% for file in val %}
+<li>{{file}}</li>
+{% endfor %}
+</ul>
+          {% endfor %}
+</ul>
+</li>
+        {% endfor %}
+</ul>
+
+
           {% set first_item = tests|map(attribute='item')|first %}
           <details class="file" open="">
             <summary>
@@ -176,7 +219,7 @@
                         {% block test_name scoped %}
                         {% set name = test.item.nodeid.split('::')[1:]|join('::') %}
                         {% set funcname, _, params = name.partition('[') %}
-                        <span class="funcname">{{ funcname }}</span>
+                        <span class="funcname">A{{ funcname }}A</span>
                         {%- if params -%}
                           <span class="params">[{{ params }}</span>
                         {% endif %}
