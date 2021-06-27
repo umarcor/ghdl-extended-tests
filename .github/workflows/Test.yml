@@ -13,59 +13,163 @@ env:
 jobs:
 
 
-  lin-setup-verification:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      max-parallel: 8
-      matrix:
-        backend: [
-          mcode,
-          llvm,
-          gcc
-        ]
-        project: [
-          OSVVM,
-          UVVM
-        ]
-    name: '🐧 ${{ matrix.project }} · bash · ${{ matrix.backend }}'
-    steps:
+#  lin-setup-verification:
+#    runs-on: ubuntu-latest
+#    strategy:
+#      fail-fast: false
+#      max-parallel: 8
+#      matrix:
+#        backend: [
+#          mcode,
+#          llvm,
+#          gcc
+#        ]
+#        project: [
+#          OSVVM,
+#          UVVM
+#        ]
+#    name: '🐧 ${{ matrix.project }} · bash · ${{ matrix.backend }}'
+#    steps:
+#
+#    - name: '🧰 Checkout'
+#      uses: actions/checkout@v2
+#
+#    - name: '⚙️ Setup GHDL'
+#      uses: ghdl/setup-ghdl-ci@master
+#      with:
+#        backend: ${{ matrix.backend }}
+#
+#    - run: ./verification/${{ matrix.project }}/run.sh
+#
+#
+#  win-verification:
+#    runs-on: windows-latest
+#    strategy:
+#      fail-fast: false
+#      max-parallel: 8
+#      matrix:
+#        sys: [
+#          {icon: '🟦', installs: 'MINGW32', arch: i686,   pkg: 'mcode' },
+#          #{icon: '🟦', installs: "MINGW32", arch: i686,   pkg: "llvm"  }, ! Not yet functional
+#          #{icon: '🟪', installs: "MINGW64", arch: x86_64, pkg: "mcode" }, ! mcode is not yet supported on win64
+#          {icon: '🟪', installs: 'MINGW64', arch: x86_64, pkg: 'llvm'  },
+#        ]
+#        project: [
+#          OSVVM,
+#          UVVM
+#        ]
+#        shell: [
+#          msys2,
+#          psh
+#        ]
+#    name: '${{ matrix.sys.icon }} ${{ matrix.project }} · ${{ matrix.shell }} · ${{ matrix.sys.installs }} ${{ matrix.sys.pkg }}'
+#    defaults:
+#      run:
+#        shell: msys2 {0}
+#    steps:
+#
+#    - name: '${{ matrix.sys.icon }} Setup MSYS2'
+#      uses: msys2/setup-msys2@v2
+#      with:
+#        msystem: ${{ matrix.sys.installs }}
+#        update: true
+#        install: git
+#
+#    - name: '🧰 Checkout'
+#      uses: actions/checkout@v2
+#
+#    - name: '⚙️ Setup GHDL'
+#      uses: ghdl/setup-ghdl-ci@master
+#      with:
+#        backend: ${{ matrix.sys.pkg }}
+#
+#    - name: '${{ matrix.sys.icon }} Compile ${{ matrix.project }}'
+#      if: matrix.shell == 'msys2'
+#      run: ./verification/${{ matrix.project }}/run.sh
+#
+#    - name: Compile ${{ matrix.project }}
+#      if: matrix.shell == 'psh'
+#      shell: pwsh
+#      run: verification\${{ matrix.project }}\run.ps1
+#
+#
+#  DOM:
+#    runs-on: ubuntu-latest
+#    name: '🐧 ${{ matrix.project }} · DOM'
+#    steps:
+#
+#    - name: '🧰 Checkout'
+#      uses: actions/checkout@v2
+#      with:
+#        submodules: recursive
+#
+#    - name: '⚙️ Setup GHDL'
+#      uses: ghdl/setup-ghdl-ci@master
+#
+#    - name: '🐍 Setup Python'
+#      uses: actions/setup-python@v2
+#      with:
+#        python-version: 3.9
+#
+#    - name: '🐍 Install dependencies'
+#      run: |
+#        pip3 install pytest pytest-reporter pytest-reporter-html1 pytest-xdist
+#        pip3 install git+https://github.com/ghdl/ghdl.git@$(ghdl version hash)
+#
+#    - name: '📦 Clone repositories to be analysed'
+#      run: |
+#        for prj in \
+#          ghdl/ghdl \
+#          ghdl/ghdl-cosim \
+#          ghdl/ghdl-yosys-plugin \
+#          VUnit/vunit VLSI-EDA/PoC \
+#          antonblanchard/microwatt \
+#          stnolting/NEORV32;
+#        do git clone https://github.com/"$prj"; done
+#
+#    - name: '🚧 Run pytest'
+#      run: pytest -n $(nproc) --template=html1/index.html --report=report.html TestDOM.py
+#
+#    - name: '📤 Upload artifact: report.html'
+#      if: github.event_name != 'pull_request'
+#      uses: actions/upload-artifact@v2
+#      with:
+#        path: report.html
+#
+#    - name: '📓 Publish report to gh-pages'
+#      if: github.event_name != 'pull_request'
+#      run: |
+#        mkdir public
+#        cd public
+#        git init
+#        cp ../.git/config ./.git/config
+#        touch .nojekyll
+#        cp ../report.html ./index.html
+#        git add .
+#        git config --local user.email "push@gha"
+#        git config --local user.name "GHA"
+#        git commit -am "update ${{ github.sha }}"
+#        git push -u origin +HEAD:gh-pages
 
-    - name: '🧰 Checkout'
-      uses: actions/checkout@v2
 
-    - name: '⚙️ Setup GHDL'
-      uses: ghdl/setup-ghdl-ci@master
-      with:
-        backend: ${{ matrix.backend }}
+#
+# Windows CPython Test
+#
 
-    - run: ./verification/${{ matrix.project }}/run.sh
-
-
-  win-verification:
+  win-cpython:
     runs-on: windows-latest
     strategy:
       fail-fast: false
       max-parallel: 8
       matrix:
         sys: [
-          {icon: '🟦', installs: 'MINGW32', arch: i686,   pkg: 'mcode' },
-          #{icon: '🟦', installs: "MINGW32", arch: i686,   pkg: "llvm"  }, ! Not yet functional
-          #{icon: '🟪', installs: "MINGW64", arch: x86_64, pkg: "mcode" }, ! mcode is not yet supported on win64
-          {icon: '🟪', installs: 'MINGW64', arch: x86_64, pkg: 'llvm'  },
+          {icon: '🟦', installs: 'mingw32', arch: i686,   pyarch: x86, pkg: 'mcode' },
+          {icon: '🟪', installs: 'mingw64', arch: x86_64, pyarch: x64, pkg: 'llvm'  },
         ]
-        project: [
-          OSVVM,
-          UVVM
-        ]
-        shell: [
-          msys2,
-          psh
-        ]
-    name: '${{ matrix.sys.icon }} ${{ matrix.project }} · ${{ matrix.shell }} · ${{ matrix.sys.installs }} ${{ matrix.sys.pkg }}'
+    name: '${{ matrix.sys.icon }} CPython · ${{ matrix.sys.installs }} · ${{ matrix.sys.pkg }}'
     defaults:
       run:
-        shell: msys2 {0}
+        shell: pwsh
     steps:
 
     - name: '${{ matrix.sys.icon }} Setup MSYS2'
@@ -73,80 +177,43 @@ jobs:
       with:
         msystem: ${{ matrix.sys.installs }}
         update: true
-        install: git
-
-    - name: '🧰 Checkout'
-      uses: actions/checkout@v2
 
     - name: '⚙️ Setup GHDL'
       uses: ghdl/setup-ghdl-ci@master
       with:
         backend: ${{ matrix.sys.pkg }}
 
-    - name: '${{ matrix.sys.icon }} Compile ${{ matrix.project }}'
-      if: matrix.shell == 'msys2'
-      run: ./verification/${{ matrix.project }}/run.sh
-
-    - name: Compile ${{ matrix.project }}
-      if: matrix.shell == 'psh'
-      shell: pwsh
-      run: verification\${{ matrix.project }}\run.ps1
-
-
-  DOM:
-    runs-on: ubuntu-latest
-    name: '🐧 ${{ matrix.project }} · DOM'
-    steps:
-
     - name: '🧰 Checkout'
       uses: actions/checkout@v2
       with:
-        submodules: recursive
-
-    - name: '⚙️ Setup GHDL'
-      uses: ghdl/setup-ghdl-ci@master
+        repository: ghdl/ghdl
 
     - name: '🐍 Setup Python'
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: 3.8
+        architecture: ${{ matrix.sys.pyarch }}
 
-    - name: '🐍 Install dependencies'
+    - name: '🐍 Install Python dependencies'
       run: |
-        pip3 install pytest pytest-reporter pytest-reporter-html1 pytest-xdist
-        pip3 install git+https://github.com/ghdl/ghdl.git@$(ghdl version hash)
+        pip3 install -r testsuite/requirements.txt
+        pip3 install ("git+https://github.com/ghdl/ghdl.git@" + (& $env:GHDL version hash))
 
-    - name: '📦 Clone repositories to be analysed'
+    - name: '🚧 Test pyunit'
       run: |
-        for prj in \
-          ghdl/ghdl \
-          ghdl/ghdl-cosim \
-          ghdl/ghdl-yosys-plugin \
-          VUnit/vunit VLSI-EDA/PoC \
-          antonblanchard/microwatt \
-          stnolting/NEORV32;
-        do git clone https://github.com/"$prj"; done
+        $env:PATH = $env:PATH.split(";") | %{ $_ -replace ".*?Strawberry.*", "" } | Join-String -separator ";"
+        $env:PATH = (& msys2 -c 'cygpath -w /') + "${{ matrix.sys.installs }}\bin;" + $env:PATH
 
-    - name: '🚧 Run pytest'
-      run: pytest -n $(nproc) --template=html1/index.html --report=report.html TestDOM.py
+        "> libghdl-2_0_0_dev.dll"
+        ldd ((& msys2 -c 'cygpath -w /') + "${{ matrix.sys.installs }}\lib\libghdl-2_0_0_dev.dll")
 
-    - name: '📤 Upload artifact: report.html'
-      if: github.event_name != 'pull_request'
-      uses: actions/upload-artifact@v2
-      with:
-        path: report.html
+        "> libgcc_s_seh-1.dll"
+        ldd ((& msys2 -c 'cygpath -w /') + "${{ matrix.sys.installs }}\bin\libgcc_s_seh-1.dll")
 
-    - name: '📓 Publish report to gh-pages'
-      if: github.event_name != 'pull_request'
-      run: |
-        mkdir public
-        cd public
-        git init
-        cp ../.git/config ./.git/config
-        touch .nojekyll
-        cp ../report.html ./index.html
-        git add .
-        git config --local user.email "push@gha"
-        git config --local user.name "GHA"
-        git commit -am "update ${{ github.sha }}"
-        git push -u origin +HEAD:gh-pages
+        "> libgnat-10.dll"
+        ldd ((& msys2 -c 'cygpath -w /') + "${{ matrix.sys.installs }}\bin\libgnat-10.dll")
+
+        "> libwinpthread-1.dll"
+        ldd ((& msys2 -c 'cygpath -w /') + "${{ matrix.sys.installs }}\bin\libwinpthread-1.dll")
+
+        python3 -m pytest -vsrA testsuite/pyunit
