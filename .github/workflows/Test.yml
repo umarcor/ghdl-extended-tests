@@ -73,7 +73,9 @@ jobs:
       with:
         msystem: ${{ matrix.sys.installs }}
         update: true
-        install: git
+        install: >
+          git
+          mingw-w64-${{ matrix.sys.arch }}-python
 
     - name: '🧰 Checkout'
       uses: actions/checkout@v2
